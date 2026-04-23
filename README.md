@@ -1,15 +1,42 @@
+
 # Retro Scan AI
 
-Retro Scan AI is an end-to-end solution for automated road asset detection, scoring, and analytics using YOLO-based computer vision and a modern web dashboard.
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Backend](https://img.shields.io/badge/backend-FastAPI-blue)
+![Frontend](https://img.shields.io/badge/frontend-React-61DAFB)
 
-## Features
-- **YOLO-based Detection**: Fast, accurate object detection for road signs, markings, and studs.
-- **FastAPI Backend**: Python API for running YOLO inference and serving results.
-- **React Frontend**: Modern dashboard for visualizing detections, analytics, and reports.
-- **Seamless Integration**: Frontend automatically detects backend availability and falls back gracefully if offline.
-- **Extensible Scoring**: Customizable scoring and compliance logic for different asset types.
+## 🚦 Project Overview
+Retro Scan AI is a production-ready platform for automated road asset detection, scoring, and analytics. It leverages state-of-the-art YOLO models and a modern web dashboard to deliver actionable insights for infrastructure maintenance and compliance.
 
-## Project Structure
+**Key Benefits:**
+- Automated detection of road signs, markings, and studs
+- Real-time scoring and compliance analytics
+- Intuitive dashboard for visualization and reporting
+- Robust fallback and error handling for seamless user experience
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[User uploads image via UI] --> B[React Frontend]
+    B --> C[API Call: /detect]
+    C --> D[FastAPI Backend]
+    D --> E[YOLO Model Inference]
+    E --> F[Detection Results]
+    F --> D
+    D --> G[JSON Response]
+    G --> B
+    B --> H[Dashboard Visualization]
+    B --> I[Fallback: Error/Offline Handling]
+```
+
+---
+
+## 📁 Project Structure
+
 ```
 Retro Scan AI/
 ├── backend/           # FastAPI backend and YOLO logic
@@ -26,7 +53,9 @@ Retro Scan AI/
 └── ...
 ```
 
-## Getting Started
+---
+
+## 🚀 Quickstart
 
 ### Prerequisites
 - Python 3.10+
@@ -34,55 +63,103 @@ Retro Scan AI/
 - (Recommended) [Git](https://git-scm.com/)
 
 ### Backend Setup
-1. Navigate to the backend directory:
-   ```sh
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```sh
-   python -m venv .venv
-   # On Windows:
-   .venv\Scripts\activate
-   # On macOS/Linux:
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. Start the FastAPI server:
-   ```sh
-   uvicorn app:app --reload --host 127.0.0.1 --port 8000
-   ```
+```sh
+cd backend
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
 
 ### Frontend Setup
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Start the development server:
-   ```sh
-   npm run dev
-   ```
-3. Open [http://localhost:5173](http://localhost:5173) in your browser.
+```sh
+npm install
+npm run dev
+# Open http://localhost:5173 in your browser
+```
 
-## API Endpoints
+---
+
+## 🧑‍💻 Usage
+
+### API Example
+**Detect objects in an image:**
+
+```bash
+curl -X POST "http://127.0.0.1:8000/detect" -F "file=@test.jpg" -F "speed=80"
+```
+
+**Health check:**
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+### UI Example
+1. Open the dashboard in your browser.
+2. Upload a road asset image.
+3. View detection results, compliance status, and analytics.
+
+---
+
+## 🔌 API Endpoints
+
 - `GET /health` — Health check
 - `POST /detect` — Run YOLO detection on an uploaded image
 
-## YOLO Model
-- The backend uses [Ultralytics YOLO](https://github.com/ultralytics/ultralytics). The default model is `yolov8n.pt`.
-- To use a custom model, set the `YOLO_MODEL` environment variable.
+---
 
-## Troubleshooting
-- **Backend not found?** Ensure the FastAPI server is running and accessible at `http://127.0.0.1:8000`.
+## ⚙️ Configuration
+
+- **YOLO Model:** The backend uses [Ultralytics YOLO](https://github.com/ultralytics/ultralytics). Default: `yolov8n.pt`.
+- **Custom Model:** Set the `YOLO_MODEL` environment variable to use a different model.
+
+---
+
+## 🛠️ Troubleshooting
+
+- **Backend not found?** Ensure the FastAPI server is running at `http://127.0.0.1:8000`.
 - **Module errors?** Double-check your Python environment and installed dependencies.
 - **YOLO errors?** Make sure the model file exists and is compatible with your Ultralytics version.
+- **CORS issues?** The backend enables CORS for all origins by default.
 
-## License
-MIT License
+---
 
-## Authors
+## 🤝 Contributing
+
+Contributions are welcome! To contribute:
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push to your fork and open a Pull Request
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## ❓ FAQ
+
+**Q: Can I use a custom YOLO model?**  
+A: Yes, set the `YOLO_MODEL` environment variable to your model path.
+
+**Q: How do I deploy this in production?**  
+A: Use a production server (e.g., Gunicorn with Uvicorn workers) and serve the frontend with a static file server or CDN.
+
+**Q: Where do I report bugs?**  
+A: Please open an issue on GitHub.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👤 Authors & Maintainers
+
 - [Your Name] — Project Lead
 - [Contributors]
 
