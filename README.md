@@ -160,8 +160,6 @@ This project is licensed under the MIT License.
 
 ## 👤 Authors & Maintainers
 
-- [Your Name] — Project Lead
-- [Contributors]
-
+R LAKSHMI PRANAY TEJ
 ---
 For questions or support, please open an issue or contact the maintainer.
