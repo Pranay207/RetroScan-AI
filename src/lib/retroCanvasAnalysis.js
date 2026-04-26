@@ -122,6 +122,21 @@ export const calculateOverallSafety = (objects) => {
   };
 };
 
+export const applySpeedToObjects = (objects, speed = 80) => {
+  const speedThreshold = SPEED_THRESHOLDS[speed] || SPEED_THRESHOLDS[80];
+
+  return (objects || []).map((object, index) => ({
+    ...object,
+    id: object.id || formatObjectId(index),
+    speedThreshold,
+    speedStatus: object.score >= speedThreshold ? 'SAFE' : 'UNSAFE',
+    speedUnsafeDespiteIrc: object.ircStatus === 'COMPLIANT' && object.score < speedThreshold,
+    visibilityDistance: Math.round(object.score * 0.8),
+    recommendation: object.recommendation || getRecommendation(object.ircStatus),
+    priority: object.priority || getPriority(object.ircStatus, object.score, object.type),
+  }));
+};
+
 export const loadImageFromFile = (file) =>
   new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(file);
@@ -284,7 +299,7 @@ export const analyzeCanvasImage = async (file, speed = 80) => {
   }
 };
 
-export const buildAnalysisFromDetectedObjects = async (file, objects, summary) => {
+export const buildAnalysisFromDetectedObjects = async (file, objects, summary, speed = 80) => {
   const { image, objectUrl } = await loadImageFromFile(file);
   const canvas = document.createElement('canvas');
   canvas.width = image.width;
@@ -292,10 +307,10 @@ export const buildAnalysisFromDetectedObjects = async (file, objects, summary) =
   const ctx = canvas.getContext('2d');
   ctx.drawImage(image, 0, 0);
 
-  const normalizedObjects = (objects || []).map((object, index) => ({
+  const normalizedObjects = applySpeedToObjects((objects || []).map((object, index) => ({
     ...object,
     id: object.id || formatObjectId(index),
-  }));
+  })), speed);
 
   return {
     file,

@@ -6,7 +6,9 @@ import {
   SPEED_THRESHOLDS,
   STATUS_COLORS,
   analyzeCanvasImage,
+  applySpeedToObjects,
   buildAnalysisFromDetectedObjects,
+  calculateOverallSafety,
   drawAnnotatedDetections,
 } from '@/lib/retroCanvasAnalysis';
 import { requestYoloDetections } from '@/lib/yoloClient';
@@ -78,6 +80,7 @@ export default function DetectionScoring() {
   const annotatedCanvasRef = useRef(null);
   const focusCanvasRef = useRef(null);
   const fileInputRef = useRef(null);
+  const analysisSourceRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [speed, setSpeed] = useState(80);
@@ -138,10 +141,28 @@ export default function DetectionScoring() {
 
       try {
         const yoloResponse = await requestYoloDetections(file, nextSpeed);
-        result = await buildAnalysisFromDetectedObjects(file, yoloResponse.objects, yoloResponse.summary);
-        setAnalysisMode('yolo');
+        if (Array.isArray(yoloResponse.objects) && yoloResponse.objects.length > 0) {
+          result = await buildAnalysisFromDetectedObjects(file, yoloResponse.objects, yoloResponse.summary, nextSpeed);
+          analysisSourceRef.current = {
+            mode: 'yolo',
+            file,
+            objects: yoloResponse.objects,
+          };
+          setAnalysisMode('yolo');
+        } else {
+          result = await analyzeCanvasImage(file, nextSpeed);
+          analysisSourceRef.current = {
+            mode: 'client',
+            file,
+          };
+          setAnalysisMode('client');
+        }
       } catch {
         result = await analyzeCanvasImage(file, nextSpeed);
+        analysisSourceRef.current = {
+          mode: 'client',
+          file,
+        };
         setAnalysisMode('client');
       }
 
@@ -234,6 +255,23 @@ export default function DetectionScoring() {
     if (!selectedFile) return undefined;
 
     const timeoutId = window.setTimeout(() => {
+      const source = analysisSourceRef.current;
+
+      if (source?.mode === 'yolo' && source.file === selectedFile && analysis) {
+        const rescoredObjects = applySpeedToObjects(source.objects, speed);
+        setAnalysis((previous) => previous ? ({
+          ...previous,
+          objects: rescoredObjects,
+          summary: calculateOverallSafety(rescoredObjects),
+        }) : previous);
+        return;
+      }
+
+      if (source?.mode === 'client' && source.file === selectedFile) {
+        handleAnalyze(selectedFile, speed);
+        return;
+      }
+
       handleAnalyze(selectedFile, speed);
     }, 250);
 
